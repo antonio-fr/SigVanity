@@ -17,24 +17,42 @@ Launch SigVanity.py without any args to generate a single wallet address.
 
 You can enter an optional argument, the argument must be a FirstBits address like 1xxx or 3xxx
 
+
 Example:
+
+    python2.7 SigVanity.py
+
+will generate a standard Bitcoin address
+
+    python2.7 SigVanity.py m
+
+will generate a Multisig 2-to-3 Bitcoin address
 
     python2.7 SigVanity.py 1BTE
 
 will search for a Bitcoin address starting with "1BTZ"
 
-    python2.7 SigVanity.py 3BTE (not yet implemented)
+    python2.7 SigVanity.py 3BTE
 
-will search for a P2SH address starting with "3BTE", and will give out 3 Bitcoin standard addresses.
+will search for a 2-to-3 P2SH address starting with "3BTE", and will give out 3 Bitcoin standard addresses.
 
 
-Random source for key generation :
+Some code files come from pybitcointools from VButerin
+Copyright (c) 2013 Vitalik Buterin
+
+
+Random source for key generation initialization:
 
 * CryptGenRandom in Windows
 * /dev/urandom   in Unix-like
 
 
-First version without any P2SH capabilities, only works with standard Bitcoin "1xxx" "addresses.
+## To Do
+
+* Add argument handling to choose number of keys
+* Input external public keys (existing address)
+* Use pybitcointools for standard address generation 
+
 
 
 Licence :
