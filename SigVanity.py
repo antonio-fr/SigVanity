@@ -78,13 +78,18 @@ if __name__ == '__main__':
 				P2SH = searchstring[0]=="3"
 			else:
 				assert arg1=="m"
-				P2SH = True
+			pubinputlist = sys.argv[2:]
+			print pubinputlist
+			npubinput=len(pubinputlist)
+			assert npubinput < 3
+			P2SH = True
 	except:
-		raise ValueError("Error in argument, not a valid FirstBits string\nor just 'm' to generate P2SH address")
+		raise ValueError("Error in arguments")
 	load_gtable('lib/G_Table')
 	if P2SH:
-		privs = [randomforkey() for x in range(3)]
+		privs = [randomforkey() for x in range(3-npubinput)]
 		pubs = [bitcoin.privtopub(hexa(priv)) for priv in privs]
+		pubs = pubs+pubinputlist
 		addresses = [bitcoin.pubtoaddr(pub) for pub in pubs]
 		mscript = bitcoin.mk_multisig_script(pubs, 2, 3)
 		address = bitcoin.p2sh_scriptaddr(mscript)
