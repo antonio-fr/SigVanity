@@ -79,7 +79,6 @@ if __name__ == '__main__':
 			else:
 				assert arg1=="m"
 			pubinputlist = sys.argv[2:]
-			print pubinputlist
 			npubinput=len(pubinputlist)
 			assert npubinput < 3
 			P2SH = True
@@ -142,16 +141,16 @@ if __name__ == '__main__':
 				inter=1
 		print "Search Speed : ",(newprivkeynum-nstart)/(time.time() - startTime), " per second\n"
 	if 'inter' not in locals():
+		pubs[0]=bitcoin.privkey_to_pubkey(hexa(foundprivkeynum))
+		privs[0]=foundprivkeynum
+		mscript_test = bitcoin.mk_multisig_script(pubs, 2, 3)
+		assert address == bitcoin.p2sh_scriptaddr(mscript_test)
 		print "\nAddress :  %s \n" % address
 		if P2SH:
-			pvhex = priv_hex_base58(foundprivkeynum)
-			print "PrivKey 1:  %s" % pvhex
-			print "PubKey 1:  %s\n" % bitcoin.privkey_to_pubkey(hexa(foundprivkeynum))
-			pvhex1 = priv_hex_base58(privs[1])
-			print "PrivKey 2:  %s" % pvhex1
-			print "PubKey 2:  %s\n" % bitcoin.privkey_to_pubkey(hexa(privs[1]))
-			pvhex2 = priv_hex_base58(privs[2])
-			print "PrivKey 3:  %s" % pvhex2
-			print "PubKey 3:  %s\n" % bitcoin.privkey_to_pubkey(hexa(privs[2]))
+			for x in range(3-npubinput):
+				print "PrivKey %i:  %s" % (x,priv_hex_base58(privs[x]))
+				print "PubKey %i:  %s\n" % (x,bitcoin.privkey_to_pubkey(hexa(privs[x])))
+			for x in range(3-npubinput,3):
+				print "PubKey %i:  %s\n" % (x,pubs[x])
 		else:
 			print "PrivKey :  %s\n" % priv_hex_base58(foundprivkeynum)

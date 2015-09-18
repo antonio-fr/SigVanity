@@ -36,8 +36,15 @@ will search for a Bitcoin address starting with "1BTZ"
 
 will search for a 2-to-3 P2SH address starting with "3BTE", and will give out 3 Bitcoin standard addresses.
 
+Then you can add public key (up to 2):
+
+    python2.7 SigVanity.py m 0407a730a52979a57f4dc659c4c75ff6c24e844abcdefxyz
+
+will search for a Multisig 2-to-3 Bitcoin address, with one key given
+
 
 Some code files come from pybitcointools from VButerin
+
 Copyright (c) 2013 Vitalik Buterin
 
 
@@ -50,9 +57,8 @@ Random source for key generation initialization:
 ## To Do
 
 * Add argument handling to choose number of keys
-* Input external public keys (existing address)
+* Print keys addresses
 * Use pybitcointools for standard address generation 
-
 
 
 Licence :
