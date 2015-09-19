@@ -23,8 +23,8 @@ Using P2SH, you can optionnaly input PubKeys
 
 
     SigVanity.py [ <1xFirstBits> |
-    			    m (KeysReq KeysTot) |
-    			   <3xFirstBits> (KeysReq KeysTot) [<PubKeyHex> [<PubKeyHex> ...]] ] 
+    			    m (<KeysReq> <KeysTot>) |
+    			   <3xFirstBits> (<KeysReq> <KeysTot>) [<PubKeyHex> [<PubKeyHex> ...]] ] 
 
 
 

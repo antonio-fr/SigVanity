@@ -69,7 +69,7 @@ if __name__ == '__main__':
 	vanity = False
 	P2SH = False
 	try:
-		if len(sys.argv) > 2:
+		if len(sys.argv) > 1:
 			arg1 = sys.argv[1]
 			if (re.match(r"^[13][a-km-zA-HJ-NP-Z1-9]{1,10}$",arg1) != None):
 				searchstring = arg1
@@ -86,7 +86,7 @@ if __name__ == '__main__':
 			assert npubinput < nkeystotal
 			P2SH = True
 	except:
-		raise ValueError("Error in arguments")
+		raise ValueError("Error in arguments\nUse :     SigVanity.py [ <1xFirstBits> |\nm (<KeysReq> <KeysTot>) |\n<3xFirstBits> (<KeysReq> <KeysTot>) [<PubKeyHex> [<PubKeyHex> ...]]\n]")
 	load_gtable('lib/G_Table')
 	if P2SH:
 		privs = [randomforkey() for x in range(nkeystotal-npubinput)]
