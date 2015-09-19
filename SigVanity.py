@@ -20,8 +20,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
-# Enter optional argument : a string shorter than 11 chars
 #
+
 from lib.ECDSA_BTC import *
 import bitcoin
 
@@ -50,9 +50,9 @@ def compute_adr(priv_num):
 
 def compute_adr_P2SH(args):
 	try:
-		(priv_num,pubs)=args
+		(priv_num,pubs,nkr,nkt)=args
 		pub = bitcoin.privtopub(hexa(priv_num))
-		mscript = bitcoin.mk_multisig_script([pub,pubs[1],pubs[2]], 2, 3)
+		mscript = bitcoin.mk_multisig_script([pub]+pubs[1:], nkr, nkt)
 		return bitcoin.p2sh_scriptaddr(mscript)
 	except KeyboardInterrupt:
 		return "x"
@@ -69,7 +69,7 @@ if __name__ == '__main__':
 	vanity = False
 	P2SH = False
 	try:
-		if len(sys.argv) > 1:
+		if len(sys.argv) > 2:
 			arg1 = sys.argv[1]
 			if (re.match(r"^[13][a-km-zA-HJ-NP-Z1-9]{1,10}$",arg1) != None):
 				searchstring = arg1
@@ -78,19 +78,25 @@ if __name__ == '__main__':
 				P2SH = searchstring[0]=="3"
 			else:
 				assert arg1=="m"
-			pubinputlist = sys.argv[2:]
-			npubinput=len(pubinputlist)
-			assert npubinput < 3
+			nkeysneeded = int(sys.argv[2])
+			nkeystotal = int(sys.argv[3])
+			assert nkeysneeded <= nkeystotal
+			rawpubinputlist = sys.argv[4:]
+			npubinput = len(rawpubinputlist)
+			assert npubinput < nkeystotal
 			P2SH = True
 	except:
 		raise ValueError("Error in arguments")
 	load_gtable('lib/G_Table')
 	if P2SH:
-		privs = [randomforkey() for x in range(3-npubinput)]
+		privs = [randomforkey() for x in range(nkeystotal-npubinput)]
 		pubs = [bitcoin.privtopub(hexa(priv)) for priv in privs]
+		pubinputlist = []
+		for item in rawpubinputlist:
+			pubinputlist.append(item.lower())
 		pubs = pubs+pubinputlist
 		addresses = [bitcoin.pubtoaddr(pub) for pub in pubs]
-		mscript = bitcoin.mk_multisig_script(pubs, 2, 3)
+		mscript = bitcoin.mk_multisig_script(pubs, nkeysneeded, nkeystotal)
 		address = bitcoin.p2sh_scriptaddr(mscript)
 		foundprivkeynum = privs[0]
 	else:
@@ -109,7 +115,7 @@ if __name__ == '__main__':
 				while address == None:
 					privkeynumlist = range(newprivkeynum,newprivkeynum+listwide)
 					newprivkeynum = newprivkeynum + listwide
-					addresslist = p.map(compute_adr_P2SH,[(privkeynumu, pubs) for privkeynumu in privkeynumlist])
+					addresslist = p.map(compute_adr_P2SH,[(privkeynumu, pubs, nkeysneeded, nkeystotal) for privkeynumu in privkeynumlist])
 					for index, addressk in enumerate(addresslist, start=0):
 						if addressk.startswith(searchstring):
 							address = addressk
@@ -141,16 +147,21 @@ if __name__ == '__main__':
 				inter=1
 		print "Search Speed : ",(newprivkeynum-nstart)/(time.time() - startTime), " per second\n"
 	if 'inter' not in locals():
-		pubs[0]=bitcoin.privkey_to_pubkey(hexa(foundprivkeynum))
-		privs[0]=foundprivkeynum
-		mscript_test = bitcoin.mk_multisig_script(pubs, 2, 3)
-		assert address == bitcoin.p2sh_scriptaddr(mscript_test)
 		print "\nAddress :  %s \n" % address
 		if P2SH:
-			for x in range(3-npubinput):
-				print "PrivKey %i:  %s" % (x,priv_hex_base58(privs[x]))
-				print "PubKey %i:  %s\n" % (x,bitcoin.privkey_to_pubkey(hexa(privs[x])))
-			for x in range(3-npubinput,3):
-				print "PubKey %i:  %s\n" % (x,pubs[x])
+			print "P2SH : %i required over %i keys\n" % (nkeysneeded,nkeystotal)
+			pubs[0] = bitcoin.privkey_to_pubkey(hexa(foundprivkeynum))
+			privs[0] = foundprivkeynum
+			mscript_test = bitcoin.mk_multisig_script(pubs, nkeysneeded, nkeystotal)
+			assert address == bitcoin.p2sh_scriptaddr(mscript_test)
+			for x in range(nkeystotal-npubinput):
+				print "Key #%i" % (x+1)
+				print "PrivKey %i:  %s" % (x+1,priv_hex_base58(privs[x]))
+				print "Related Address %i:  %s" % (x+1,bitcoin.pubkey_to_address(pubs[x]))
+				print "PubKey %i:  %s\n" % (x+1,bitcoin.privkey_to_pubkey(hexa(privs[x])))
+			for x in range(nkeystotal-npubinput,nkeystotal):
+				print "Key #%i\nNo Private Key for this address, PubKey given\nRelated Address %i:  %s"\
+					% (x+1,x+1,bitcoin.pubkey_to_address(pubs[x]))
+				print "PubKey %i:  %s\n" % (x+1,pubs[x])
 		else:
 			print "PrivKey :  %s\n" % priv_hex_base58(foundprivkeynum)
