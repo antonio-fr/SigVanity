@@ -77,14 +77,15 @@ if __name__ == '__main__':
 				vanity = True
 				P2SH = searchstring[0]=="3"
 			else:
-				assert arg1=="m"
-			nkeysneeded = int(sys.argv[2])
-			nkeystotal = int(sys.argv[3])
-			assert nkeysneeded <= nkeystotal
-			rawpubinputlist = sys.argv[4:]
-			npubinput = len(rawpubinputlist)
-			assert npubinput < nkeystotal
-			P2SH = True
+				assert arg1 == "m"
+				P2SH = True
+			if P2SH == True:
+				nkeysneeded = int(sys.argv[2])
+				nkeystotal = int(sys.argv[3])
+				assert nkeysneeded <= nkeystotal
+				rawpubinputlist = sys.argv[4:]
+				npubinput = len(rawpubinputlist)
+				assert npubinput < nkeystotal
 	except:
 		raise ValueError("Error in arguments\nUse :     SigVanity.py [ <1xFirstBits> |\nm (<KeysReq> <KeysTot>) |\n<3xFirstBits> (<KeysReq> <KeysTot>) [<PubKeyHex> [<PubKeyHex> ...]]\n]")
 	load_gtable('lib/G_Table')
