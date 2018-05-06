@@ -28,21 +28,6 @@ except:
 	raise Exception('Please install coincurve :\n pip install coincurve')
 import bitcoin
 
-def hashrand(num):
-	#return sha256 of num times 256bits random data
-	rng_data=''
-	for idat in xrange(num):
-		rng_data = rng_data + os.urandom(32)
-	assert len(rng_data) == num*32
-	return hashlib.sha256(rng_data).hexdigest()
-
-def randomforkey():
-	candint = 0
-	r = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141L
-	while candint<1 or candint>=r:
-		candint = int(hashrand(1024),16)
-	return candint
-
 def compute_adr(priv_num):
 	try:
 		pubkey = coincurve.PrivateKey.from_int(priv_num).public_key
@@ -70,6 +55,19 @@ if __name__ == '__main__':
 	import time
 	import os.path
 	print "\nGenerate new Bitcoin address from random or vanity (FirstBits)"
+	def hashrand(num):
+		#return sha256 of num times 256bits random data
+		rng_data=''
+		for idat in xrange(num):
+			rng_data = rng_data + os.urandom(32)
+		assert len(rng_data) == num*32
+		return hashlib.sha256(rng_data).hexdigest()
+	def randomforkey():
+		candint = 0
+		r = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141L
+		while candint<1 or candint>=r:
+			candint = int(hashrand(1024),16)
+		return candint
 	vanity = False
 	P2SH = False
 	try:
