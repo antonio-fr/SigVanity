@@ -19,38 +19,36 @@ You can enter an optional argument, the argument must be a FirstBits address lik
 
 For "3xxx" P2SH addresses, you need to add number of keys required and total number or keys.
 
-Using P2SH, you can optionnaly input PubKeys 
+Using P2SH, you can optionally input PubKeys 
 
 
-    SigVanity.py [ <1xFirstBits> |
-    			    m (<KeysReq> <KeysTot>) |
-    			   <3xFirstBits> (<KeysReq> <KeysTot>) [<PubKeyHex> [<PubKeyHex> ...]] ] 
+    SigVanity.py [ <1xFirstBits>          |
+                    m <KeysReq> <KeysTot> |
+                   <3xFirstBits> <KeysReq> <KeysTot> [<PubKeyHex> [<PubKeyHex> ...]] ]
 
 
 
 ## Examples:
 
-    python2.7 SigVanity.py
+Generate a standard Bitcoin address
 
-will generate a standard Bitcoin address
+    SigVanity.py
 
-    python2.7 SigVanity.py m 2 3
+Generate a Multisig 2-to-3 Bitcoin address
 
-will generate a Multisig 2-to-3 Bitcoin address
+    SigVanity.py m 2 3
 
-    python2.7 SigVanity.py 1BTE
+Search for a Bitcoin address starting with "1BTE"
 
-will search for a Bitcoin address starting with "1BTZ"
+    SigVanity.py 1BTE
 
-    python2.7 SigVanity.py 3BTE 2 3 
+Search for a 2-to-3 P2SH address starting with "3BTE", give out 3 Bitcoin standard addresses.
 
-will search for a 2-to-3 P2SH address starting with "3BTE", and will give out 3 Bitcoin standard addresses.
+    SigVanity.py 3BTE 2 3 
 
-Then you can add public keys:
+Then you can add public keys to search for a Multisig Bitcoin address, with one or more key given
 
-    python2.7 SigVanity.py m 2 3 0407a730a52979a57f4dc659c4c75ff6c24e844abcdefxyz
-
-will search for a Multisig 2-to-3 Bitcoin address, with one key given
+    SigVanity.py m 2 3 0407a730a52979a57f4dc659c4c75ff6c24e844abcdefxyz
 
 
     >SigVanity.py 3AB 3 4 0492EBE75FEEFFD857DA28A7644CC04B6CE07BAF4D1CFD19DBD1A5D901C49D6A5D359E636F45226878FC1E5A14921329CA25876705D7A1225CB33BBAEB4E38BDDA

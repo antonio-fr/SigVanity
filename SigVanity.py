@@ -2,7 +2,7 @@
 # coding=utf8
 
 # SigVanity : Bitcoin MultiSig Address Generator
-# Copyright (C) 2015  Antoine FERRON
+# Copyright (C) 2015-2018  Antoine FERRON
 #
 # Pure Python address generator with Vanity capabilities
 #
