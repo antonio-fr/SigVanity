@@ -21,8 +21,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 #
-
-from lib.ECDSA_BTC import *
+from lib import B58
+import coincurve
 import bitcoin
 
 def hashrand(num):
@@ -42,23 +42,25 @@ def randomforkey():
 
 def compute_adr(priv_num):
 	try:
-		pubkey = Public_key( generator_256, mulG(priv_num) )
-		return pub_hex_base58(pubkey.point.x(),pubkey.point.y())
-	except KeyboardInterrupt:
+		pubkey = coincurve.PrivateKey.from_int(priv_num).public_key
+		px,py = pubkey.point()
+		return B58.pub_hex_base58(px,py)
+	except:
 		return "x"
 
 def compute_adr_P2SH(args):
 	try:
-		(priv_num,pubs,nkr,nkt)=args
-		pub = bitcoin.privtopub(hexa(priv_num))
+		( priv_num, pubs, nkr, nkt ) = args
+		pub = coincurve.PrivateKey.from_int(priv_num).public_key.format(False).encode('hex')
 		mscript = bitcoin.mk_multisig_script([pub]+pubs[1:], nkr, nkt)
 		return bitcoin.p2sh_scriptaddr(mscript)
-	except KeyboardInterrupt:
+	except:
 		return "x"
 
 if __name__ == '__main__':
 	import multiprocessing
-	p = multiprocessing.Pool(int(multiprocessing.cpu_count()))
+	ncpus = int(multiprocessing.cpu_count())
+	p = multiprocessing.Pool(ncpus)
 	import hashlib
 	import re
 	import sys
@@ -72,7 +74,7 @@ if __name__ == '__main__':
 			arg1 = sys.argv[1]
 			if (re.match(r"^[13][a-km-zA-HJ-NP-Z1-9]{1,10}$",arg1) != None):
 				searchstring = arg1
-				listwide=16*int(multiprocessing.cpu_count())
+				listwide = ncpus << 8
 				vanity = True
 				P2SH = searchstring[0]=="3"
 			else:
@@ -90,11 +92,11 @@ if __name__ == '__main__':
 			\n  <3xFirstBits> <KeysReq> <KeysTot> [<PubKeyHex> [<PubKeyHex> ...]]\n]")
 	if P2SH:
 		privs = [randomforkey() for x in range(nkeystotal-npubinput)]
-		pubs = [bitcoin.privtopub(hexa(priv)) for priv in privs]
+		pubs = [bitcoin.privtopub(B58.hexa(priv)) for priv in privs]
 		pubinputlist = []
 		for item in rawpubinputlist:
 			pubinputlist.append(item.lower())
-		pubs = pubs+pubinputlist
+		pubs = pubs + pubinputlist
 		addresses = [bitcoin.pubtoaddr(pub) for pub in pubs]
 		mscript = bitcoin.mk_multisig_script(pubs, nkeysneeded, nkeystotal)
 		address = bitcoin.p2sh_scriptaddr(mscript)
@@ -116,10 +118,10 @@ if __name__ == '__main__':
 					privkeynumlist = range(newprivkeynum, newprivkeynum + listwide)
 					newprivkeynum = newprivkeynum + listwide
 					addresslist = p.map(compute_adr_P2SH,[(privkeynumu, pubs, nkeysneeded, nkeystotal) for privkeynumu in privkeynumlist])
-					for index, addressk in enumerate(addresslist, start=0):
-						if addressk.startswith(searchstring):
-							address = addressk
-							foundprivkeynum = privkeynumlist[index]
+					addrlf = filter(lambda addri:addri.startswith(searchstring), addresslist)
+					if len(addrlf)>0:
+						address = addrlf[0]
+						foundprivkeynum = privkeynumlist[addresslist.index(address)]
 				print "Found!"
 			except KeyboardInterrupt:
 				p.terminate()
@@ -133,13 +135,13 @@ if __name__ == '__main__':
 			startTime = time.time()
 			try:
 				while address == None:
-					privkeynumlist = range(newprivkeynum,newprivkeynum+listwide)
-					newprivkeynum = newprivkeynum + listwide
-					addresslist = p.map(compute_adr,privkeynumlist)
-					for index, addressk in enumerate(addresslist, start=0):
-						if addressk.startswith(searchstring):
-							address = addressk
-							foundprivkeynum = privkeynumlist[index]
+					privkeynumlist = range(newprivkeynum, newprivkeynum + listwide)
+					newprivkeynum += listwide
+					addresslist = p.map(compute_adr, privkeynumlist)
+					addrlf = filter(lambda addri:addri.startswith(searchstring), addresslist)
+					if len(addrlf)>0:
+						address = addrlf[0]
+						foundprivkeynum = privkeynumlist[addresslist.index(address)]
 				print "Found!"
 			except KeyboardInterrupt:
 				p.terminate()
@@ -150,18 +152,18 @@ if __name__ == '__main__':
 		print "\nAddress :  %s \n" % address
 		if P2SH:
 			print "P2SH : %i required over %i keys\n" % (nkeysneeded,nkeystotal)
-			pubs[0] = bitcoin.privkey_to_pubkey(hexa(foundprivkeynum))
+			pubs[0] = bitcoin.privkey_to_pubkey(B58.hexa(foundprivkeynum))
 			privs[0] = foundprivkeynum
 			mscript_test = bitcoin.mk_multisig_script(pubs, nkeysneeded, nkeystotal)
 			assert address == bitcoin.p2sh_scriptaddr(mscript_test)
 			for x in range(nkeystotal-npubinput):
 				print "Key #%i" % (x+1)
-				print "PrivKey %i:  %s" % (x+1,priv_hex_base58(privs[x]))
+				print "PrivKey %i:  %s" % (x+1,B58.priv_hex_base58(privs[x]))
 				print "Related Address %i:  %s" % (x+1,bitcoin.pubkey_to_address(pubs[x]))
-				print "PubKey %i:  %s\n" % (x+1,bitcoin.privkey_to_pubkey(hexa(privs[x])))
+				print "PubKey %i:  %s\n" % (x+1,bitcoin.privkey_to_pubkey(B58.hexa(privs[x])))
 			for x in range(nkeystotal-npubinput,nkeystotal):
 				print "Key #%i\nNo Private Key for this address, PubKey given\nRelated Address %i:  %s"\
 					% (x+1,x+1,bitcoin.pubkey_to_address(pubs[x]))
 				print "PubKey %i:  %s\n" % (x+1,pubs[x])
 		else:
-			print "PrivKey :  %s\n" % priv_hex_base58(foundprivkeynum)
+			print "PrivKey :  %s\n" % B58.priv_hex_base58(foundprivkeynum)
