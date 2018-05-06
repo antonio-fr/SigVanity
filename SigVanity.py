@@ -120,14 +120,17 @@ if __name__ == '__main__':
 					newprivkeynum = newprivkeynum + listwide
 					addresslist = p.map(compute_adr_P2SH,[(privkeynumu, pubs, nkeysneeded, nkeystotal) for privkeynumu in privkeynumlist])
 					addrlf = filter(lambda addri:addri.startswith(searchstring), addresslist)
+					addrexcept = filter(lambda addri:addri == "x", addresslist)
+					if len(addrexcept)>0:
+						p.terminate()
+						break
 					if len(addrlf)>0:
 						address = addrlf[0]
 						foundprivkeynum = privkeynumlist[addresslist.index(address)]
-				print "Found!"
-			except KeyboardInterrupt:
+						print "Found!"
+			except:
 				p.terminate()
 				print "Interrupted, nothing found\n"
-				inter=1
 		else:
 			newprivkeynum = privkeynum
 			print "\nVanity Mode, please Wait ..."
@@ -140,16 +143,19 @@ if __name__ == '__main__':
 					newprivkeynum += listwide
 					addresslist = p.map(compute_adr, privkeynumlist)
 					addrlf = filter(lambda addri:addri.startswith(searchstring), addresslist)
+					addrexcept = filter(lambda addri:addri == "x", addresslist)
+					if len(addrexcept)>0:
+						p.terminate()
+						break
 					if len(addrlf)>0:
 						address = addrlf[0]
 						foundprivkeynum = privkeynumlist[addresslist.index(address)]
-				print "Found!"
-			except KeyboardInterrupt:
+						print "Found!"
+			except:
 				p.terminate()
 				print "Interrupted, nothing found\n"
-				inter = 1
 		print "Search Speed : ",(newprivkeynum-nstart)/(time.time() - startTime), " per second\n"
-	if 'inter' not in locals():
+	if address != None:
 		print "\nAddress :  %s \n" % address
 		if P2SH:
 			print "P2SH : %i required over %i keys\n" % (nkeysneeded,nkeystotal)
