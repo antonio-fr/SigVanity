@@ -22,7 +22,10 @@
 #
 #
 from lib import B58
-import coincurve
+try:
+	import coincurve
+except:
+	raise Exception('Please install coincurve :\n pip install coincurve')
 import bitcoin
 
 def hashrand(num):
