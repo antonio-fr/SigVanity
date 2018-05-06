@@ -37,8 +37,7 @@ def randomforkey():
 	candint = 0
 	r = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141L
 	while candint<1 or candint>=r:
-		cand=hashrand(1024)
-		candint=int(cand,16)
+		candint = int(hashrand(1024),16)
 	return candint
 
 def compute_adr(priv_num):
@@ -87,8 +86,8 @@ if __name__ == '__main__':
 				npubinput = len(rawpubinputlist)
 				assert npubinput < nkeystotal
 	except:
-		raise ValueError("Error in arguments\nUse :     SigVanity.py [ <1xFirstBits> |\nm (<KeysReq> <KeysTot>) |\n<3xFirstBits> (<KeysReq> <KeysTot>) [<PubKeyHex> [<PubKeyHex> ...]]\n]")
-	load_gtable('lib/G_Table')
+		raise ValueError("Error in arguments\n\nUse :     SigVanity.py [ <1xFirstBits> |\n  m <KeysReq> <KeysTot> | \
+			\n  <3xFirstBits> <KeysReq> <KeysTot> [<PubKeyHex> [<PubKeyHex> ...]]\n]")
 	if P2SH:
 		privs = [randomforkey() for x in range(nkeystotal-npubinput)]
 		pubs = [bitcoin.privtopub(hexa(priv)) for priv in privs]
@@ -114,7 +113,7 @@ if __name__ == '__main__':
 			startTime = time.time()
 			try:
 				while address == None:
-					privkeynumlist = range(newprivkeynum,newprivkeynum+listwide)
+					privkeynumlist = range(newprivkeynum, newprivkeynum + listwide)
 					newprivkeynum = newprivkeynum + listwide
 					addresslist = p.map(compute_adr_P2SH,[(privkeynumu, pubs, nkeysneeded, nkeystotal) for privkeynumu in privkeynumlist])
 					for index, addressk in enumerate(addresslist, start=0):
@@ -145,7 +144,7 @@ if __name__ == '__main__':
 			except KeyboardInterrupt:
 				p.terminate()
 				print "Interrupted, nothing found\n"
-				inter=1
+				inter = 1
 		print "Search Speed : ",(newprivkeynum-nstart)/(time.time() - startTime), " per second\n"
 	if 'inter' not in locals():
 		print "\nAddress :  %s \n" % address
